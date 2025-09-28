@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CSS Avatar — Face Corrector & Animator</title>
+  <style>
+    :root{
+      --bg: #f2f6fb;
+      --card: #ffffff;
+      --skin: #d99e7a; /* adjust */
+      --hair: #101010;
+      --shirt: #0b6b9a;
+      --stubble: rgba(0,0,0,0.15);
+      --accent: #ffd166;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;background:linear-gradient(180deg,var(--bg),#eaf2fb);color:#222}
+
+    .wrap{max-width:1100px;margin:36px auto;padding:24px}
+    .top{display:flex;gap:20px;align-items:flex-start}
+
+    .card{background:var(--card);border-radius:16px;padding:18px;flex:1;box-shadow:0 8px 30px rgba(13,30,48,0.08)}
+
+    .preview{width:480px;height:640px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+    .scene{width:320px;height:520px;position:relative}
+
+    /* Avatar container */
+    .avatar{position:absolute;left:50%;transform:translateX(-50%);bottom:20px;width:220px;height:460px}
+
+    /* torso */
+    .torso{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:140px;height:180px;border-radius:24px 24px 18px 18px;background:var(--shirt);box-shadow:inset 0 -10px 30px rgba(0,0,0,0.08)}
+    .neck{position:absolute;left:50%;transform:translateX(-50%);bottom:168px;width:70px;height:36px;background:var(--skin);border-radius:10px}
+
+    /* head */
+    .head{position:absolute;left:50%;transform:translateX(-50%);bottom:198px;width:160px;height:170px;background:var(--skin);border-radius:50% 50% 44% 44%;box-shadow:0 10px 24px rgba(12,20,30,0.12);overflow:visible}
+
+    /* hair */
+    .hair{position:absolute;left:50%;transform:translateX(-50%);top:-22px;width:180px;height:120px;background:radial-gradient(circle at 30% 20%, rgba(255,255,255,0.04), transparent 15%), var(--hair);border-radius:54% 46% 40% 60%/70% 70% 30% 30%;box-shadow:0 6px 18px rgba(0,0,0,0.18)}
+    .hair::after{content:'';position:absolute;left:18%;top:28px;width:70px;height:60px;border-radius:50%;background:var(--hair);transform:rotate(-8deg)}
+    .hair::before{content:'';position:absolute;right:20px;top:20px;width:60px;height:56px;border-radius:50%;background:var(--hair);transform:rotate(8deg)}
+
+    /* subtle curl shapes */
+    .curl{position:absolute;border-radius:50%;background:var(--hair);opacity:0.95}
+    .curl.c1{width:30px;height:22px;left:10px;top:58px}
+    .curl.c2{width:36px;height:26px;left:36px;top:52px}
+    .curl.c3{width:28px;height:20px;right:20px;top:56px}
+
+    /* facial features */
+    .eye{position:absolute;width:34px;height:18px;top:64px;border-radius:20px;background:linear-gradient(180deg,#fff,#f7f7f9);box-shadow:inset 0 2px 0 rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center}
+    .eye.left{left:36px}
+    .eye.right{right:36px}
+    .pupil{width:10px;height:10px;border-radius:50%;background:#241f1f;box-shadow:0 1px 0 rgba(255,255,255,0.08) inset}
+
+    /* eyebrow (adjustable) */
+    .brow{position:absolute;height:8px;width:54px;top:54px;background:linear-gradient(90deg,var(--hair),rgba(0,0,0,0));border-radius:10px}
+    .brow.left{left:26px;transform:rotate(6deg)}
+    .brow.right{right:26px;transform:rotate(-6deg)}
+
+    .nose{position:absolute;left:50%;transform:translateX(-50%);top:86px;width:24px;height:32px;border-radius:14px/18px;background:linear-gradient(180deg,rgba(0,0,0,0.03),transparent)}
+
+    .mouth{position:absolute;left:50%;transform:translateX(-50%);top:116px;width:56px;height:28px;border-radius:0 0 34px 34px/0 0 18px 18px;background:linear-gradient(180deg,#b65f4e,#a94b3e);overflow:hidden}
+    .lip-top{position:absolute;left:0;right:0;top:2px;height:12px;border-radius:8px 8px 20px 20px;background:rgba(255,255,255,0.03)}
+
+    /* stubble */
+    .stubble{position:absolute;left:50%;transform:translateX(-50%);top:126px;width:92px;height:48px;border-radius:8px;background:linear-gradient(var(--stubble),transparent);opacity:0.65}
+
+    /* ears */
+    .ear{position:absolute;width:24px;height:34px;background:var(--skin);top:86px;border-radius:20px}
+    .ear.left{left:-6px}
+    .ear.right{right:-6px}
+
+    /* shoulders */
+    .shoulder{position:absolute;width:84px;height:32px;background:var(--shirt);border-radius:30px;top:38px;left:50%;transform:translateX(-50%);}
+    .shoulder.left{transform:translateX(-130px) rotate(-8deg)}
+    .shoulder.right{transform:translateX(46px) rotate(8deg)}
+
+    /* small backpack to hint at photos */
+    .backpack{position:absolute;left:50%;transform:translateX(-50%);bottom:30px;width:110px;height:118px;border-radius:18px;background:linear-gradient(180deg,#095c80,#083c50);box-shadow:0 8px 22px rgba(3,32,46,0.3)}
+    .backpack::after{content:'';position:absolute;left:10px;top:14px;width:22px;height:22px;border-radius:6px;background:#0ea5b0;opacity:0.9}
+
+    /* legs */
+    .legs{position:absolute;left:50%;transform:translateX(-50%);bottom:-4px;width:110px;height:120px;display:flex;justify-content:space-between}
+    .leg{width:44px;height:88px;background:#1f3a43;border-radius:18px}
+
+    /* animations */
+    @keyframes floaty{0%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}100%{transform:translateX(-50%) translateY(0)}}
+    .avatar{animation:floaty 4s ease-in-out infinite}
+
+    /* blinking */
+    .eye::after{content:'';position:absolute;left:0;right:0;height:100%;top:0;background:linear-gradient(180deg,rgba(0,0,0,0.02),transparent);border-radius:20px;transform-origin:center;animation:blink 6s infinite}
+    @keyframes blink{0%,95%{transform:scaleY(1)}97%{transform:scaleY(0.02)}99%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+
+    /* controls */
+    .controls{width:360px;padding:12px}
+    .controls h3{margin:6px 0 10px}
+    .control{display:flex;align-items:center;gap:10px;margin:10px 0}
+    .control label{width:120px;font-size:13px;color:#333}
+    .control input[type=range]{flex:1}
+    .btn-row{display:flex;gap:8px;margin-top:12px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;background:#0b6b9a;color:#fff;cursor:pointer}
+    .btn.secondary{background:#666}
+
+    footer{margin-top:18px;font-size:13px;color:#445;opacity:0.9}
+
+    /* responsive */
+    @media (max-width:900px){.top{flex-direction:column}.preview{width:100%;height:auto}} 
+  /* responsive */
+    @media (max-width:900px){.top{flex-direction:column}.preview{width:100%;height:auto}} 
+
+    /* name tag (top-right) */
+    .nameTag{position:absolute;right:8px;top:12px;background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(250,250,255,0.9));padding:8px 12px;border-radius:12px;font-weight:700;box-shadow:0 6px 18px rgba(12,20,30,0.12);color:#0b3140;border:1px solid rgba(11,107,154,0.08);backdrop-filter:blur(4px)}
+    .nameTag.right{right:12px;left:auto}
+    .nameTag.left{left:12px;right:auto}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="card">
+        <div class="preview">
+          <div class="scene">
+            <div class="nameTag right" id="nameTag">Mr. Ahmad</div>
+            <div class="avatar" id="avatar">
+              <div class="backpack"></div>
+              <div class="torso"></div>
+              <div class="neck" id="neck"></div>
+              <div class="head" id="head">
+                <div class="hair" id="hair"></div>
+                <div class="curl c1"></div>
+                <div class="curl c2"></div>
+                <div class="curl c3"></div>
+
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+
+                <div class="brow left" id="browL"></div>
+                <div class="brow right" id="browR"></div>
+
+                <div class="eye left" id="eyeL"><div class="pupil" id="pupilL"></div></div>
+                <div class="eye right" id="eyeR"><div class="pupil" id="pupilR"></div></div>
+
+                <div class="nose" id="nose"></div>
+                <div class="mouth" id="mouth"><div class="lip-top"></div></div>
+                <div class="stubble" id="stubble"></div>
+              </div>
+
+              <div class="legs">
+                <div class="leg left"></div>
+                <div class="leg right"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card controls">
+        <h3>Face correction & styling controls</h3>
+        <div class="control"><label>Face width</label><input id="faceWidth" type="range" min="120" max="200" value="160"></div>
+        <div class="control"><label>Jaw height</label><input id="jawHeight" type="range" min="120" max="200" value="170"></div>
+        <div class="control"><label>Hair fullness</label><input id="hairSize" type="range" min="80" max="140" value="100"></div>
+        <div class="control"><label>Eye spacing</label><input id="eyeSpacing" type="range" min="18" max="60" value="36"></div>
+        <div class="control"><label>Smile (mouth curve)</label><input id="mouthCurve" type="range" min="-12" max="24" value="0"></div>
+        <div class="control"><label>Skin tone</label><input id="skinTone" type="color" value="#d99e7a"></div>
+        <div class="control"><label>Hair color</label><input id="hairColor" type="color" value="#101010"></div>
+        <div class="control"><label>Shirt color</label><input id="shirtColor" type="color" value="#0b6b9a"></div>
+
+        <div class="control"><label>Name (label)</label><input id="nameLabel" type="text" value="Mr. Ahmad" placeholder="Enter name"></div>
+        <div class="control"><label>Label position</label><select id="labelPos"><option value="right">Right</option><option value="left">Left</option></select></div>
+        <div class="btn-row">
+          <button class="btn" id="auto">Auto-correct</button>
+          <button class="btn secondary" id="reset">Reset</button>
+        </div>
+
+        <footer>
+          Tip: use sliders to nudge the avatar — "auto-correct" applies a friendly portrait adjustment based on typical facial proportions. If you'd like, tell me which area you'd like further refined (hair, jaw, eyes, skin tone) and I will tune the defaults.
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // elements
+    const head = $('head');
+    const hair = $('hair');
+    const mouth = $('mouth');
+    const stubble = $('stubble');
+    const browL = $('browL');
+    const browR = $('browR');
+    const eyeL = $('eyeL');
+    const eyeR = $('eyeR');
+    const pupilL = $('pupilL');
+    const pupilR = $('pupilR');
+    const avatar = $('avatar');
+
+    // controls
+    const faceWidth = $('faceWidth');
+    const jawHeight = $('jawHeight');
+    const hairSize = $('hairSize');
+    const eyeSpacing = $('eyeSpacing');
+    const mouthCurve = $('mouthCurve');
+    const skinTone = $('skinTone');
+    const hairColor = $('hairColor');
+    const shirtColor = $('shirtColor');
+    const autoBtn = $('auto');
+    const resetBtn = $('reset');
+
+    function applyAll(){
+      // face width -> adjust head width
+      const w = faceWidth.value + 'px';
+      head.style.width = w;
+
+      // jaw/face height => adjust border radius / position
+      const h = jawHeight.value + 'px';
+      head.style.height = h;
+
+      // hair fullness
+      const hs = hairSize.value/100;
+      hair.style.width = Math.round(head.offsetWidth*1.15*hs) + 'px';
+      hair.style.height = Math.round(head.offsetHeight*0.7*hs) + 'px';
+
+      // eye spacing
+      const es = parseInt(eyeSpacing.value,10);
+      eyeL.style.left = (es) + 'px';
+      eyeR.style.right = (es) + 'px';
+
+      // mouth curvature -> translate y and border radius to simulate smile
+      const mc = parseInt(mouthCurve.value,10);
+      mouth.style.top = (head.offsetHeight*0.69 + mc) + 'px';
+      mouth.style.borderRadius = `0 0 ${34+mc/2}px ${34+mc/2}px/0 0 ${18+mc/4}px ${18+mc/4}px`;
+
+      // color updates
+      document.documentElement.style.setProperty('--skin', skinTone.value);
+      document.documentElement.style.setProperty('--hair', hairColor.value);
+      document.documentElement.style.setProperty('--shirt', shirtColor.value);
+
+      // stubble contrast depends on skin tone brightness
+      stubble.style.background = `linear-gradient(rgba(0,0,0,${0.12}), transparent)`;
+
+      // brows slightly depend on hair color
+      browL.style.background = `linear-gradient(90deg, ${hairColor.value}, rgba(0,0,0,0))`;
+      browR.style.background = `linear-gradient(90deg, ${hairColor.value}, rgba(0,0,0,0))`;
+
+      // pupils centered
+      pupilL.style.transform = 'translateX(0)';
+      pupilR.style.transform = 'translateX(0)';
+    }
+
+    // add event listeners
+    [faceWidth,jawHeight,hairSize,eyeSpacing,mouthCurve,skinTone,hairColor,shirtColor].forEach(el=>el.addEventListener('input',applyAll));
+
+    // Auto-correct sets values that often look balanced for portraits
+    autoBtn.addEventListener('click',()=>{
+      faceWidth.value = 160; jawHeight.value = 170; hairSize.value = 110; eyeSpacing.value = 36; mouthCurve.value = 6;
+      skinTone.value = '#d99e7a'; hairColor.value = '#0f0f0f'; shirtColor.value = '#0b6b9a';
+      applyAll();
+      // gentle wink animation to show change
+      avatar.animate([{transform:'translateX(-50%) translateY(0)'},{transform:'translateX(-50%) translateY(-8px)'},{transform:'translateX(-50%) translateY(0)'}],{duration:600,iterations:1});
+    });
+
+    resetBtn.addEventListener('click',()=>{
+      faceWidth.value = 160; jawHeight.value = 170; hairSize.value = 100; eyeSpacing.value = 36; mouthCurve.value = 0;
+      skinTone.value = '#d99e7a'; hairColor.value = '#101010'; shirtColor.value = '#0b6b9a';
+      applyAll();
+    });
+
+    // simple interactive pupil follow to add life
+    document.addEventListener('mousemove',e=>{
+      const rect = avatar.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height*0.42;
+      const dx = (e.clientX - cx)/rect.width*10;
+      const dy = (e.clientY - cy)/rect.height*6;
+      pupilL.style.transform = `translate(${dx}px,${dy}px)`;
+      pupilR.style.transform = `translate(${dx}px,${dy}px)`;
+    });
+
+    // set name variables
+    const nameLabel = $('nameLabel');
+    const labelPos = $('labelPos');
+    const nameTag = $('nameTag');
+
+    // wire up name label input and position select
+    nameLabel.addEventListener('input', ()=>{ nameTag.textContent = nameLabel.value || 'Unnamed'; });
+    labelPos.addEventListener('change', ()=>{ nameTag.classList.toggle('left', labelPos.value === 'left'); nameTag.classList.toggle('right', labelPos.value === 'right'); });
+
+    // set initial values from controls
+    nameTag.textContent = nameLabel.value;
+    nameTag.classList.toggle('right', labelPos.value === 'right');
+
+    // initial apply
+    applyAll();
+  </script>
+</body>
+</html>
